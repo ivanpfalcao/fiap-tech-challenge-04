@@ -7,6 +7,8 @@ from fastapi.exceptions import RequestValidationError
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from pydantic import BaseModel
 import uvicorn
+import os
+
 from stock_predictions.predictors.stock_predictions import PredictionRunner
 
 
@@ -19,13 +21,19 @@ app = FastAPI(
 	openapi_url="/openapi.json"
 )
 
+tracking_url = os.environ.get('MLFLOW_TRACKING_URL', "http://localhost:5000")
+experiment_name = os.environ.get('MLFLOW_EXPERIMENT_NAME', "Stock Prediction")
+model_run_id = os.environ.get('MLFLOW_MODEL_RUN_ID', "runs:/388a859230994515bf04759f769c7668/model")
 
+print(f"MLFlow tracking URL: {tracking_url}")
+print(f"MLFlow experiment name: {experiment_name}")
+print(f"MLFlow model run id: {model_run_id}")
 
-pred_runner = PredictionRunner(tracking_url="http://localhost:5000", experiment_name="Stock Prediction")
+pred_runner = PredictionRunner(tracking_url=tracking_url, experiment_name=experiment_name)
 
 pred_runner.torch_config()
 
-pred_runner.load_model_mlflow("runs:/388a859230994515bf04759f769c7668/model")
+pred_runner.load_model_mlflow(model_run_id)
 
 # Error handler for validation errors
 @app.exception_handler(RequestValidationError)
@@ -49,9 +57,8 @@ class DataList(BaseModel):
 
 @app.post("/predict/")
 async def predict(data_list: DataList):
-    print(data_list.data_list)
     prediction = pred_runner.predict(data_list.data_list)
-    return {"prediction": prediction, "message": "Prediction Ok"}
+    return {"prediction": prediction, "model_run_id": model_run_id, "experiment_name": experiment_name}
 
 # Root endpoint
 @app.get("/")

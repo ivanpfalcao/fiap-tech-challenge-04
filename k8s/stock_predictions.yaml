@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlflow-secret
+type: Opaque
+data:
+  MLFLOW_TRACKING_USERNAME: dXNlcg==
+  MLFLOW_TRACKING_PASSWORD: cHN3ZA==
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-predictions
+  labels:
+    app: stock-predictions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stock-predictions
+  template:
+    metadata:
+      labels:
+        app: stock-predictions
+    spec:
+      containers:
+      - name: stock-predictions
+        image: ivanpfalcao/stock_predictions:1.0.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MLFLOW_TRACKING_URL
+          value: "http://mlflow-server-tracking:80"
+        - name: MLFLOW_EXPERIMENT_NAME
+          value: "Stock Prediction"
+        - name: MLFLOW_MODEL_RUN_ID
+          value: "runs:/b5730283926442ebaeb9a7168f98f288/model"
+        - name: MLFLOW_TRACKING_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-secret
+              key: MLFLOW_TRACKING_USERNAME
+        - name: MLFLOW_TRACKING_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlflow-secret
+              key: MLFLOW_TRACKING_PASSWORD
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock-predictions-svc
+spec:
+  selector:
+    app: stock-predictions
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: LoadBalancer

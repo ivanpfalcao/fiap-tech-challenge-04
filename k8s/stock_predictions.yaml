@@ -21,11 +21,12 @@ spec:
   template:
     metadata:
       labels:
-        app: stock-predictions
+        app: stock-predictions    
     spec:
+      terminationGracePeriodSeconds: 0
       containers:
       - name: stock-predictions
-        image: ivanpfalcao/stock_predictions:1.0.0
+        image: ivanpfalcao/stock_predictions:1.0.0        
         ports:
         - containerPort: 8000
         env:
@@ -34,7 +35,7 @@ spec:
         - name: MLFLOW_EXPERIMENT_NAME
           value: "Stock Prediction"
         - name: MLFLOW_MODEL_RUN_ID
-          value: "runs:/b5730283926442ebaeb9a7168f98f288/model"
+          value: "runs:/935914e282ba4833a0bb0d6c965a5257/model"
         - name: MLFLOW_TRACKING_USERNAME
           valueFrom:
             secretKeyRef:

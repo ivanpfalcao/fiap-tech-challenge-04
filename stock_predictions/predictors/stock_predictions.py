@@ -72,4 +72,4 @@ class PredictionRunner():
             predictions = self.stock_p.model(input_tensor)
         
         # Return predictions as a NumPy array
-        return predictions.squeeze().cpu().numpy()
+        return predictions.squeeze().cpu().numpy().tolist()

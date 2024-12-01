@@ -11,6 +11,6 @@ setup(
     name='stock_predictions',
     version='0.1.0',
     packages=find_packages(),
-    py_modules=['predictors.stock_predictions', 'predictors.ai'],
+    py_modules=['predictors.stock_predictions', 'predictors.ai', 'predictors.api'],
     install_requires=get_requirements()
 )

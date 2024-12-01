@@ -112,7 +112,9 @@ class StockPrediction():
             target = dataset[i+1:i+lookback+1]
             X.append(feature)
             y.append(target)
-        return torch.tensor(X).to(self.device), torch.tensor(y).to(self.device)
+        return torch.tensor(X, dtype=torch.float32, device=self.device), torch.tensor(y, dtype=torch.float32, device=self.device)
+    
+    
     
     def get_torch_train_n_test(self, test_percentage = 0.65, lookback = 4):
         _x_train, _y_train, _x_test, _y_test = self.get_train_n_test(0.65)
@@ -228,7 +230,19 @@ class StockPrediction():
             model_uri (str): The URI of the model in MLflow.
         """
         print(f"Loading model from MLflow at {model_uri}...")
-        self.model = mlflow.pytorch.load_model(model_uri).to(self.device)
+
+        # Use map_location to handle environments without a GPU
+        try:
+            self.model = mlflow.pytorch.load_model(model_uri, map_location=torch.device(self.device))
+        except RuntimeError as e:
+            if "torch.cuda.is_available() is False" in str(e):
+                print("GPU model detected, but no GPU is available. Loading the model on the CPU.")
+                self.model = mlflow.pytorch.load_model(model_uri, map_location=torch.device('cpu'))
+            else:
+                raise e
+
+        # Ensure the model is moved to the correct device after loading
+        self.model = self.model.to(self.device)
         print("Model loaded successfully.")
 
     def execute_model(self, input_data):
@@ -246,7 +260,8 @@ class StockPrediction():
 
         # Convert input data to a torch.Tensor if it is a numpy array
         if isinstance(input_data, np.ndarray):
-            input_data = torch.tensor(input_data, dtype=torch.float32).to(self.device)
+            input_data = torch.tensor(input_data, dtype=torch.float32, device=self.device)
+            
 
         self.model.eval()
         with torch.no_grad():

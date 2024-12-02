@@ -1,12 +1,12 @@
 # FIAP Tech Challenge 04
 
-This repository contains the codebase and resources for the FIAP Tech Challenge 04 for the ML Engineering - Pos Tech. The project includes machine learning workflows, API scripts, containerization files, and Kubernetes deployment configurations.
+This repository contains the codebase and resources for the FIAP Tech Challenge 04 - Pos Tech ML Engineering. The project includes machine learning workflows, API scripts, containerization files, and Kubernetes deployment configurations.
 
 ## Project Structure
 
 ### Root Directory (`fiap-tech-challenge-04`)
 - **`api_test.ipynb`**: Notebook for testing the API endpoints.
-- **`model_training.ipynb`**: Notebook for training the stock ML model. Depends on a MLFlow server.
+- **`model_training.ipynb`**: Notebook for training the stock ML model. It runs with a MLFlow server.
 - **`primeiras_analises.ipynb`**: Notebook for initial data analysis.
 - **`start_mlflow.sh`**: Script to start the MLflow server locally.
 
@@ -56,18 +56,18 @@ Core logic for the stock predictions service.
 #### 1. Build and Run Docker Image (Only if the code is changed)
 ```bash
 cd container
-sh 01-build.sh
-sh 02-run.sh
+bash 01-build.sh
+bash 02-run.sh
 ```
 
 #### 2. Deploy MLflow
 ```bash
 cd env/mlflow
-sh 01-deploy-mlflow.sh
+bash 01-deploy-mlflow.sh
 # Retrieve MLflow password
-sh 90-get-mlflow-pswd.sh
+bash 90-get-mlflow-pswd.sh
 # Port-forward MLflow
-sh 91-mlflow-port-forward.sh
+bash 91-mlflow-port-forward.sh
 ```
 
 #### Optional. Train the model
@@ -82,9 +82,9 @@ sh 91-mlflow-port-forward.sh
 #### 3. Deploy Stock predictions
 ```bash
 cd k8s
-sh 01-deploy-stock-predictions.sh
+bash 01-deploy-stock-predictions.sh
 # Optional: Port-forward Stock Predictions if required
-sh 91-depl-port-forward.sh
+bash 91-depl-port-forward.sh
 ```
 
 #### Optional. Test the API
